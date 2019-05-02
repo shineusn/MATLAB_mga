@@ -1,0 +1,161 @@
+clc;clear
+%%
+
+L = 75; 
+Lc = 5; 
+S = 7.02; 
+Sc = 0.2; 
+MD = 7.2; 
+MDc = 0.3; 
+n = 1000;  
+a = 0.1; 
+%%
+
+sigmaL=sqrt([Lc/3.373]*sqrt(121)); 
+sigmaS=sqrt([Sc/3.373]*sqrt(121)); 
+sigmaMD=sqrt([MDc/3.373]*sqrt(121));
+sigmaSRL=sqrt([Lc/1.658]*sqrt(121));
+%%
+
+sampledata =L+sigmaSRL.*randn(n,1);
+if a==0.01
+    s=2.576; 
+elseif a==0.05
+    s=1.96;   
+elseif a==0.1
+    s=1.645;  
+end
+
+meana=mean(sampledata);
+stda=std(sampledata); 
+sorta=sort(sampledata);  
+leng=size(sampledata,1); 
+CIf(1:2,1)=[meana-s*stda;meana+s*stda]; 
+%%
+
+a=[];b=[];c=[];d=[];e=[];f=[];g=[];h=[];aa=[];bb=[];
+%%
+SRL = L+sigmaSRL.*randn(n,1) ;
+L = L+sigmaL.*randn(n,1);
+S = S+sigmaS.*randn(n,1); 
+MD = MD+sigmaMD.*randn(n,1); 
+%%
+
+for i=1:n
+        D(i)=10.^(-0.292+0.494*log10(L(i)));
+        g=[g,D(i)];
+end
+aveD = mean(g);
+sigmaD=std(g);   
+D = aveD+sigmaD.*randn(n,1); 
+%%
+
+for i=1:n
+    for j=1:n
+        M1(i)=5.381+1.30*log10(L(i))-0.355*log10(S(j));
+        a=[a,M1(i)];
+    end
+end
+sigma1=0.26; 
+sigma1s=sqrt(std(a)*std(a)+sigma1*sigma1);
+Mag11s = mean(a)+sigma1s.*randn(n,1); 
+Mag111s=[max(Mag11s) mean(Mag11s) min(Mag11s) std(Mag11s)];
+%dlmwrite('Mag.txt',Mag111s,'delimiter','','-append');
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+arf=0.99; 
+arfc=0.02; 
+sigmaarf=sqrt([arfc/3.373]*sqrt(121)); 
+arfz = arf+sigmaarf.*randn(n,1); 
+baita=0.08; 
+baitac=0.13; 
+sigmabaita=sqrt([baitac/3.373]*sqrt(121));
+baitaz = baita+sigmabaita.*randn(n,1); 
+for i=1:n
+    for j=1:n
+        Mw1(i)=arfz(i)*(mean(Mag11s))-baitaz(j);
+        aa=[aa,Mw1(i)];
+    end
+end
+sigmaaa=0.20; 
+sigma1w=sqrt(std(aa)*std(aa)+sigmaaa*sigmaaa); 
+Mag11w = mean(aa)+sigma1w.*randn(n,1); 
+Mag111w=[max(Mag11w) mean(Mag11w) min(Mag11w) std(Mag11w)]
+dlmwrite('Mag.txt',Mag111w,'delimiter','','-append');
+%%
+
+for i=1:n
+    for j=1:n
+        M2(i)=5.449+0.98*log10(L(i))+0.334*log10(D(j));
+        b=[b,M2(i)];
+    end
+end
+sigma2=0.31;
+sigma2s=sqrt(sigma2*sigma2+std(b)*std(b)); 
+Mag22s = mean(b)+sigma2s.*randn(n,1); 
+Mag222s=[max(Mag22s) mean(Mag22s) min(Mag22s) std(Mag22s)];
+dlmwrite('Mag.txt',Mag222s,'delimiter','','-append');
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+arf=0.99; 
+arfc=0.02; 
+sigmaarf=sqrt([arfc/3.373]*sqrt(121)); 
+arfz = arf+sigmaarf.*randn(n,1); 
+baita=0.08;
+baitac=0.13; 
+sigmabaita=sqrt([baitac/3.373]*sqrt(121)); 
+baitaz = baita+sigmabaita.*randn(n,1); 
+for i=1:n
+    for j=1:n
+        Mw2(i)=arfz(i)*(mean(Mag22s))-baitaz(i);
+        bb=[bb,Mw2(i)];
+    end
+end
+sigmaaa=0.20;
+sigma2w=sqrt(std(bb)*std(bb)+sigmaaa*sigmaaa); 
+Mag22w = mean(bb)+sigma2w.*randn(n,1);  
+Mag222w=[max(Mag22w) mean(Mag22w) min(Mag22w) std(Mag22w)]
+dlmwrite('Mag.txt',Mag111w,'delimiter','','-append');
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+
+for i=1:n
+        M3(i)=5.16+1.12*log10(SRL(i));
+        d=[d,M3(i)];
+end
+sigma3=0.28; 
+sigma3w=sqrt(sigma3*sigma3+std(d)*std(d)); 
+Mag33w = mean(d)+sigma3w.*randn(n,1);
+Mag333w=[max(Mag33w) mean(Mag33w) min(Mag33w) std(Mag33w)]
+
+for i=1:n
+    Mag3s(i)=1.372+0.853*Mag33w(i);
+    e=[e,Mag3s(i)];
+end
+sigmat=0.14;
+sigma3s=sqrt(std(e)*std(e)+sigmat*sigmat);
+sigma33s=sqrt(sigma3s*sigma3s+sigma3w*sigma3w);
+Mag33s = mean(e)+sigma33s.*randn(n,1);
+Mag333s=[max(Mag33s) mean(Mag33s) min(Mag33s) std(Mag33s)];
+dlmwrite('Mag.txt',Mag333s,'delimiter','','-append');
+%%
+
+for i=1:n
+    M4(i)=6.81+0.78*log10(MD(i));
+    f=[f,M4(i)];
+end
+sigma4=0.29; 
+sigma4w=sqrt(std(f)*std(f)+sigma4*sigma4);
+Mag44w = mean(f)+sigma4w.*randn(n,1); 
+Mag444w=[max(Mag44w) mean(Mag44w) min(Mag44w) std(Mag44w)]
+
+for i=1:n
+    Mag4s(i)=1.372+0.853*(M4(i));
+    h=[h,Mag4s(i)];
+end
+sigmat=0.14; 
+sigma4s=sqrt(std(h)*std(h)+sigmat*sigmat); 
+sigma44s=sqrt(sigma4s*sigma4s+sigma4w*sigma4w);
+Mag44s = mean(h)+sigma44s.*randn(n,1);
+Mag444s=[max(Mag44s) mean(Mag44s) min(Mag44s) std(Mag44s)];
+dlmwrite('Mag.txt',Mag444s,'delimiter','','-append');
